@@ -1,0 +1,3 @@
+// LEDGER - MAPBOX CONFIGURATION TEMPLATE
+// Copy this file to js/config.js and add your token.
+window.LEDGER_MAPBOX_TOKEN = 'YOUR_MAPBOX_TOKEN_HERE';

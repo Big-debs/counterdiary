@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login � THE LEDGER</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+        .auth-card { width: 100%; max-width: 460px; background: white; border: 1px solid var(--gray-200); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-lg); }
+        .auth-card h1 { font-size: 1.6rem; margin-bottom: 8px; }
+        .auth-card p { color: var(--gray-600); margin-bottom: 20px; }
+        .auth-field { margin-bottom: 14px; }
+        .auth-field label { display:block; font-weight:600; margin-bottom:6px; }
+        .auth-field input { width:100%; padding:12px; border:1px solid var(--gray-300); border-radius:10px; font:inherit; }
+        .auth-actions { display:grid; gap:10px; margin-top: 8px; }
+        .auth-note { margin-top: 14px; color: var(--gray-600); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="auth-shell">
+        <div class="auth-card">
+            <div id="adminNotice" style="display: none; background: #fffbe6; color: #92400e; padding: 12px; border-radius: 10px; margin-bottom: 20px;">
+                Please sign in with an account that has Admin privileges to access that page.
+            </div>
+            <h1>Sign in</h1>
+            <p>Access your dashboard and verified workflows.</p>
+            <form id="loginForm">
+                <div class="auth-field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" required>
+                </div>
+                <div class="auth-field">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" minlength="8" required>
+                </div>
+                <div class="auth-actions">
+                    <button class="btn btn-primary" type="submit">Login</button>
+                    <a class="btn btn-outline" href="register.html">Create account</a>
+                </div>
+            </form>
+            <div class="auth-note">Anonymous posting remains available on public flows.</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('reason') === 'admin_required') {
+                document.getElementById('adminNotice').style.display = 'block';
+            }
+        })();
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Login failed');
+
+                localStorage.setItem('ledger_access_token', data.access_token);
+                localStorage.setItem('ledger_refresh_token', data.refresh_token);
+                localStorage.setItem('ledger_user', JSON.stringify(data.user));
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                alert(error.message || 'Login failed');
+            }
+        });
+    </script>
+</body>
+</html>

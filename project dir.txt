@@ -1,0 +1,17 @@
+counterdiary/
+├── index.html                 # Homepage with live heatmap
+├── dashboard.html            # Owner dashboard & diary entry
+├── worker.html              # Anonymous worker portal
+├── customer.html           # Customer feedback (QR code landing)
+├── confession-wall.html    # Live anonymous feed
+├── public-pulse.html       # Public industry insights
+├── css/
+│   └── style.css          # Main stylesheet
+├── js/
+│   ├── main.js           # Core functionality
+│   ├── heatmap.js        # Live map visualization
+│   ├── alerts.js         # Notification system
+│   └── api-client.js     # Backend API client
+└── assets/
+    ├── icons/           # Custom SVG icons
+    └── images/          # Nigeria food industry imagery

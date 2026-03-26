@@ -1,0 +1,45 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Lagos Core", "intensity": 0.9 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[3.25,6.40],[3.55,6.40],[3.55,6.70],[3.25,6.70],[3.25,6.40]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Abuja Core", "intensity": 0.7 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[7.30,8.90],[7.70,8.90],[7.70,9.30],[7.30,9.30],[7.30,8.90]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Port Harcourt", "intensity": 0.85 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[6.90,4.70],[7.20,4.70],[7.20,5.00],[6.90,5.00],[6.90,4.70]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Ibadan", "intensity": 0.62 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[3.70,7.20],[4.00,7.20],[4.00,7.50],[3.70,7.50],[3.70,7.20]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Kano", "intensity": 0.48 },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[8.40,11.90],[8.80,11.90],[8.80,12.30],[8.40,12.30],[8.40,11.90]]]
+      }
+    }
+  ]
+}

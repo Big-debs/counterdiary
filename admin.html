@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console · THE LEDGER</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background: var(--gray-50); }
+        .admin-wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        .admin-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+        .admin-title h1 { font-size: 1.7rem; margin-bottom: 6px; }
+        .admin-title p { color: var(--gray-600); }
+        .admin-card { background: white; border:1px solid var(--gray-200); border-radius: 14px; box-shadow: var(--shadow-sm); overflow: hidden; }
+        .admin-head { padding: 16px 18px; border-bottom: 1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center; }
+        .admin-table-wrap { overflow:auto; }
+        .admin-table { width: 100%; border-collapse: collapse; min-width: 980px; }
+        .admin-table th, .admin-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-100); text-align: left; font-size: 0.92rem; }
+        .admin-table th { background: var(--gray-50); font-weight: 700; color: var(--gray-700); }
+        .pill { display:inline-flex; align-items:center; border:1px solid var(--gray-200); border-radius: 999px; padding: 3px 10px; font-size: 0.78rem; margin-right: 6px; margin-bottom: 4px; background: white; }
+        .status-active { color: #047857; }
+        .status-inactive { color: #b91c1c; }
+        .status-verified { color: #1d4ed8; }
+        .status-unverified { color: #92400e; }
+    </style>
+</head>
+<body>
+    <div class="admin-wrap">
+        <div class="admin-top">
+            <div class="admin-title">
+                <h1>Superadmin Console</h1>
+                <p>Users, roles, and verification visibility.</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <a class="btn btn-outline" href="dashboard.html">Back to Dashboard</a>
+                <button id="adminLogoutBtn" class="btn btn-primary" type="button">Sign out</button>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-head">
+                <strong>User Directory</strong>
+                <span id="adminCount" style="color: var(--gray-600);">Loading...</span>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Display Name</th>
+                            <th>Roles</th>
+                            <th>Active</th>
+                            <th>Verification</th>
+                            <th>Created</th>
+                            <th>Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersBody">
+                        <tr><td colspan="7">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card" style="margin-top: 18px;">
+            <div class="admin-head">
+                <strong>Verification Queue</strong>
+                <span id="verificationCount" style="color: var(--gray-600);">Loading...</span>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Business</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Docs</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verificationBody">
+                        <tr><td colspan="7">Loading verification requests...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        function fmtDate(value) {
+            if (!value) return '-';
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return '-';
+            return d.toLocaleString('en-NG');
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('adminUsersBody');
+            const countEl = document.getElementById('adminCount');
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7">No users found.</td></tr>';
+                countEl.innerText = '0 users';
+                return;
+            }
+
+            countEl.innerText = `${users.length} users`;
+            tbody.innerHTML = users.map((u) => {
+                const roles = (u.roles || []).map((r) => `<span class="pill">${r}</span>`).join('');
+                const activeClass = u.is_active ? 'status-active' : 'status-inactive';
+                const verifyClass = (u.verification_status || '') === 'verified' ? 'status-verified' : 'status-unverified';
+                return `
+                    <tr>
+                        <td>${u.email || '-'}</td>
+                        <td>${u.display_name || '-'}</td>
+                        <td>${roles || '-'}</td>
+                        <td class="${activeClass}">${u.is_active ? 'Active' : 'Disabled'}</td>
+                        <td class="${verifyClass}">${u.verification_status || 'unverified'}</td>
+                        <td>${fmtDate(u.created_at)}</td>
+                        <td>${fmtDate(u.last_login_at)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderVerifications(requests) {
+            const tbody = document.getElementById('verificationBody');
+            const countEl = document.getElementById('verificationCount');
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7">No verification requests.</td></tr>';
+                countEl.innerText = '0 requests';
+                return;
+            }
+
+            countEl.innerText = `${requests.length} requests`;
+            tbody.innerHTML = requests.map((r) => {
+                const statusClass = r.status === 'approved'
+                    ? 'status-verified'
+                    : (r.status === 'rejected' ? 'status-inactive' : 'status-unverified');
+
+                const actionCell = r.status === 'pending'
+                    ? `
+                        <button class="btn btn-outline" data-act="approve" data-id="${r.verification_id}" style="padding:6px 10px; min-height: 34px;">Approve</button>
+                        <button class="btn btn-primary" data-act="reject" data-id="${r.verification_id}" style="padding:6px 10px; min-height: 34px;">Reject</button>
+                    `
+                    : '-';
+
+                return `
+                    <tr>
+                        <td>${r.email || '-'}</td>
+                        <td>${r.business_name || '-'}</td>
+                        <td>${r.city || '-'}${r.lga ? ', ' + r.lga : ''}</td>
+                        <td class="${statusClass}">${r.status || '-'}</td>
+                        <td>${r.document_count || 0}</td>
+                        <td>${fmtDate(r.submitted_at)}</td>
+                        <td>${actionCell}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function runVerificationAction(action, verificationId) {
+            const endpoint = action === 'approve'
+                ? `/api/admin/verifications/${verificationId}/approve`
+                : `/api/admin/verifications/${verificationId}/reject`;
+            const body = action === 'reject'
+                ? { reason: prompt('Enter rejection reason:') || '' }
+                : {};
+
+            if (action === 'reject' && !body.reason) return;
+
+            const response = await window.ledgerAuth.authorizedFetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                throw new Error(payload.error || 'Action failed');
+            }
+        }
+
+        (async function initAdmin() {
+            if (!window.ledgerAuth) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const user = await window.ledgerAuth.requireAuth({ role: ['admin', 'superadmin'] });
+            if (!user) return;
+
+            document.getElementById('adminLogoutBtn').addEventListener('click', async () => {
+                const refreshToken = window.ledgerAuth.getRefreshToken();
+                try {
+                    if (refreshToken) {
+                        await fetch('/api/auth/logout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ refresh_token: refreshToken })
+                        });
+                    }
+                } catch (_error) {}
+                window.ledgerAuth.clearSession();
+                window.location.href = 'login.html';
+            });
+
+            const response = await window.ledgerAuth.authorizedFetch('/api/admin/users');
+            if (!response.ok) {
+                document.getElementById('adminUsersBody').innerHTML = '<tr><td colspan="7">Failed to load users.</td></tr>';
+                document.getElementById('adminCount').innerText = 'Error';
+                return;
+            }
+            const payload = await response.json();
+            renderUsers(payload.users || []);
+
+            const vr = await window.ledgerAuth.authorizedFetch('/api/admin/verifications?status=pending');
+            if (vr.ok) {
+                const vPayload = await vr.json();
+                renderVerifications(vPayload.requests || []);
+            } else {
+                document.getElementById('verificationBody').innerHTML = '<tr><td colspan="7">Failed to load verification queue.</td></tr>';
+                document.getElementById('verificationCount').innerText = 'Error';
+            }
+
+            document.getElementById('verificationBody').addEventListener('click', async (e) => {
+                const target = e.target.closest('button[data-act][data-id]');
+                if (!target) return;
+                const action = target.getAttribute('data-act');
+                const id = target.getAttribute('data-id');
+                try {
+                    await runVerificationAction(action, id);
+                    const vrRefresh = await window.ledgerAuth.authorizedFetch('/api/admin/verifications?status=pending');
+                    const refreshed = await vrRefresh.json();
+                    renderVerifications(refreshed.requests || []);
+                    const usersRefresh = await window.ledgerAuth.authorizedFetch('/api/admin/users');
+                    const usersPayload = await usersRefresh.json();
+                    renderUsers(usersPayload.users || []);
+                } catch (error) {
+                    alert(error.message || 'Action failed');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

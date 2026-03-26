@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank you · THE LEDGER</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a2647, #0e2e4f);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .thankyou-card {
+            background: white;
+            border-radius: 32px;
+            padding: 48px 40px;
+            max-width: 500px;
+            text-align: center;
+            color: var(--gray-900);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+        
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            color: white;
+            font-size: 2.5rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            color: var(--gray-600);
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .restaurant-name {
+            background: var(--gray-100);
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: var(--gray-900);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 16px;
+        }
+        
+        .btn:hover {
+            background: #a82d22;
+        }
+        
+        .closing-note {
+            margin-top: 32px;
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            border-top: 1px solid var(--gray-200);
+            padding-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="thankyou-card">
+        <div class="checkmark">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h1>Thank you 🙏</h1>
+        <p>Your anonymous feedback helps this restaurant understand what's working — and what needs to change.</p>
+        
+        <div class="restaurant-name" id="restaurantDisplay">
+            🍽️ Mama Cass Kitchen
+        </div>
+        
+        <p style="font-size: 1rem;">
+            <i class="fas fa-shield" style="color: var(--primary);"></i> 
+            Completely anonymous. Your name, phone, and identity were never collected.
+        </p>
+        
+        <a href="https://counterdiary.ng" class="btn">
+            <i class="fas fa-chart-line"></i> See Industry Pressure Index
+        </a>
+        
+        <div class="closing-note">
+            Powered by THE LEDGER · Making Nigeria's food industry visible
+        </div>
+    </div>
+    
+    <script>
+        // Get restaurant from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const restaurant = urlParams.get('restaurant') || 'this restaurant';
+        document.getElementById('restaurantDisplay').innerHTML = `🍽️ ${restaurant}`;
+    </script>
+</body>
+</html>

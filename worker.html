@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Worker Anonymous Portal · THE LEDGER</title>
+    <meta name="description" content="100% anonymous reporting for restaurant and food business workers in Nigeria. No login. No tracking. Your employer will never know.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Worker portal specific styles */
+        .worker-hero {
+            background: linear-gradient(135deg, #0a2647, #0e2e4f);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .worker-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("assets/patterns/adire-grid.svg") center/260px 260px;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .worker-hero .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .worker-role-visual {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .worker-role-visual img {
+            width: min(280px, 80vw);
+            max-height: 150px;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.25));
+        }
+        
+        .worker-form-container {
+            max-width: 600px;
+            margin: -40px auto 60px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            padding: 40px;
+            position: relative;
+        }
+        
+        .anonymity-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 12px 20px;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--gray-700);
+        }
+        
+        .form-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .form-option:hover {
+            border-color: var(--primary);
+            background: #fff5f3;
+        }
+        
+        .form-option.selected {
+            border-color: var(--primary);
+            background: #fff5f3;
+        }
+        
+        .form-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(199,56,43,0.1);
+        }
+        
+        .destroy-note {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-destroy {
+            background: #dc2626;
+            color: white;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            margin-top: 24px;
+        }
+        
+        .btn-destroy:hover {
+            background: #b91c1c;
+        }
+        
+        .footer-note {
+            text-align: center;
+            color: var(--gray-500);
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        @media (max-width: 768px) {
+            .worker-form-container {
+                margin: -20px 20px 40px;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🛡️ WORKER HERO -->
+    <div class="worker-hero">
+        <div class="container">
+            <span class="anonymity-badge" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-shield-alt"></i> 100% ANONYMOUS · NO LOGIN · NO TRACKING
+            </span>
+            <h1 style="color: white; font-size: 2.5rem; margin-bottom: 16px;">Speak. We protect you.</h1>
+            <p style="font-size: 1.25rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">Your employer will never know you spoke. We don't ask for names, phone numbers, or business names. This page self-destructs after submission.</p>
+            <div class="worker-role-visual">
+                <img src="assets/illustrations/worker-kitchen.svg" alt="Anonymous kitchen worker reporting conditions">
+            </div>
+        </div>
+    </div>
+    
+    <!-- 📝 ANONYMOUS FORM -->
+    <div class="worker-form-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2 style="margin: 0;">Report your experience</h2>
+            <span style="background: var(--gray-100); padding: 8px 16px; border-radius: 100px; font-size: 0.85rem;">
+                <i class="fas fa-clock"></i> Clears in 5min
+            </span>
+        </div>
+        
+        <form id="workerReportForm">
+            <!-- QUESTION 1: PAYMENT -->
+            <div class="form-group">
+                <label class="form-label">Did you get paid exactly what you were promised for your last shift?</label>
+                <div class="form-option">
+                    <input type="radio" name="payment" value="yes" id="payYes">
+                    <label for="payYes">✅ Yes, paid correctly</label>
+                </div>
+                <div class="form-option">
+                    <input type="radio" name="payment" value="no" id="payNo">
+                    <label for="payNo">❌ No, paid less than promised</label>
+                </div>
+                <div class="form-option">
+                    <input type="radio" name="payment" value="notyet" id="payNotYet">
+                    <label for="payNotYet">⏳ Not yet paid (overdue)</label>
+                </div>
+            </div>
+            
+            <!-- QUESTION 2: EMPLOYMENT STATUS -->
+            <div class="form-group">
+                <label class="form-label">What is your employment status?</label>
+                <div class="form-option">
+                    <input type="radio" name="status" value="permanent" id="statusPerm">
+                    <label for="statusPerm">📋 Permanent staff</label>
+                </div>
+                <div class="form-option">
+                    <input type="radio" name="status" value="casual" id="statusCasual">
+                    <label for="statusCasual">🔄 Casual worker (daily/weekly)</label>
+                </div>
+                <div class="form-option">
+                    <input type="radio" name="status" value="intern" id="statusIntern">
+                    <label for="statusIntern">🎓 Intern/NYSC/Trainee</label>
+                </div>
+                <div class="form-option">
+                    <input type="radio" name="status" value="unsure" id="statusUnsure">
+                    <label for="statusUnsure">❓ I don't know / Not sure</label>
+                </div>
+            </div>
+            
+            <!-- QUESTION 3: CITY -->
+            <div class="form-group">
+                <label class="form-label">Which city do you work in?</label>
+                <select name="city" style="width: 100%; padding: 16px; border: 1.5px solid var(--gray-200); border-radius: 12px; font-family: inherit; background: white;">
+                    <option value="">Select city</option>
+                    <option value="lagos">Lagos</option>
+                    <option value="abuja">Abuja</option>
+                    <option value="ph">Port Harcourt</option>
+                    <option value="ibadan">Ibadan</option>
+                    <option value="kano">Kano</option>
+                    <option value="benin">Benin</option>
+                    <option value="aba">Aba</option>
+                    <option value="enugu">Enugu</option>
+                    <option value="kaduna">Kaduna</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <!-- QUESTION 4: THE WHISPER (Open text) -->
+            <div class="form-group">
+                <label class="form-label">What's one thing about this job you can't say to your boss?</label>
+                <textarea name="whisper" class="form-textarea" placeholder="No names. No business names. Just your truth. This is completely anonymous."></textarea>
+                <div style="font-size: 0.85rem; color: var(--gray-500); margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> We remove business names automatically. Be honest. This helps thousands.
+                </div>
+            </div>
+            
+            <!-- ANONYMITY GUARANTEE -->
+            <div class="destroy-note">
+                <i class="fas fa-trash-alt" style="font-size: 1.25rem;"></i>
+                <div>
+                    <strong>This page self-destructs.</strong> Once you submit, your browser history of this page is erased. We never store your IP address or device info.
+                </div>
+            </div>
+            
+            <!-- SUBMIT BUTTON -->
+            <button type="submit" class="btn btn-destroy">
+                <i class="fas fa-shield"></i> Submit anonymously — my name stays secret
+            </button>
+            
+            <div class="footer-note">
+                <i class="fas fa-lock"></i> We collect only what you provide. No tracking. No cookies for this page. Built for workers.
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Form submission via backend API
+        document.getElementById('workerReportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                payment: document.querySelector('input[name="payment"]:checked')?.value || 'not_specified',
+                status: document.querySelector('input[name="status"]:checked')?.value || 'not_specified',
+                city: document.querySelector('select[name="city"]').value,
+                whisper: document.querySelector('textarea[name="whisper"]').value
+            };
+            
+            fetch('/api/worker/reports', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Client-Type': 'worker'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(async response => {
+                    if (!response.ok) {
+                        let errorMessage = 'Submission failed.';
+                        try {
+                            const errorBody = await response.json();
+                            errorMessage = errorBody.error || errorMessage;
+                        } catch (parseError) {
+                            // Keep default
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    return response.json();
+                })
+                .then(() => {
+                    // Success message
+                    alert('✅ Thank you. Your report is completely anonymous and will help protect workers.');
+                    
+                    // Clear form
+                    document.getElementById('workerReportForm').reset();
+                    
+                    // Self-destruct: clear browser history entry (push state)
+                    window.location.replace('#submitted');
+                    
+                    // Optional: redirect to confirmation page with no back history
+                    setTimeout(() => {
+                        window.location.replace('confession-wall.html?thankyou=worker');
+                    }, 2000);
+                })
+                .catch((error) => {
+                    console.error('Worker submit error:', error);
+                    alert('Error: ' + (error.message || 'Submission failed. Please check your internet and try again.'));
+                });
+        });
+        
+        // Select option styling
+        document.querySelectorAll('.form-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    
+                    // Remove selected class from siblings
+                    const name = radio.name;
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+                        input.closest('.form-option')?.classList.remove('selected');
+                    });
+                    
+                    this.classList.add('selected');
+                }
+            });
+        });
+    </script>
+    
+
+</body>
+</html>

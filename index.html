@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>THE LEDGER · Nigeria Food Industry Pressure Monitor</title>
+    <meta name="description" content="Live anonymous diary of Nigeria's restaurant and food business owners. Real-time alerts on diesel prices, harassment, spoilage and industry stress.">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Mapbox GL (Free tier, no API key needed for basic) -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    
+    <!-- OneSignal Push Notifications -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    
+    <!-- Firebase (Free backend) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 🟢 TOP ALERT BANNER - LIVE PUSH -->
+    <div class="alert-banner" id="liveAlert">
+        <div class="container">
+            <span class="pulse-dot"></span>
+            <span id="alertMessage">🔴 3 harassment reports in Surulere in last 1hr. Owners alerted.</span>
+            <button class="alert-close"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <!-- 🧭 NAVIGATION -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="nav-left">
+                <a href="/" class="logo">
+                    <span class="logo-icon"><i class="fas fa-book-open"></i></span>
+                    <span class="logo-text">THE LEDGER</span>
+                    <span class="logo-badge">BETA</span>
+                </a>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                    <a href="confession-wall.html" class="nav-link"><i class="fas fa-comment-dots"></i> Confession Wall</a>
+                    <a href="public-pulse.html" class="nav-link"><i class="fas fa-newspaper"></i> Public Pulse</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="btn btn-outline" id="ownerSignupBtn"><i class="fas fa-store"></i> Are you an owner?</button>
+                <button class="btn btn-primary" id="workerEntryBtn"><i class="fas fa-shield"></i> Worker? Speak anonymously</button>
+            </div>
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- 🗺️ HERO SECTION WITH LIVE HEATMAP -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        <span>LIVE · Updated 7s ago</span>
+                    </div>
+                    <h1>Nigeria's food industry <span class="gradient-text">pressure is hidden.</span> We're exposing it.</h1>
+                    <p class="hero-subtitle">The first anonymous diary and alert system for restaurant owners, workers and customers. Real-time intelligence on diesel costs, harassment, spoilage and revenue leakage.</p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalReports">2,847</div>
+                            <div class="stat-label">Reports today</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="activeUsers">1,203</div>
+                            <div class="stat-label">Active owners</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="alertsSent">156</div>
+                            <div class="stat-label">Alerts this week</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-cta">
+                        <button class="btn btn-large btn-primary" id="joinDiaryBtn"><i class="fas fa-pen"></i> Start your diary — free</button>
+                        <button class="btn btn-large btn-outline" id="watchDemoBtn"><i class="fas fa-play"></i> See live alerts</button>
+                    </div>
+                    
+                    <p class="privacy-note"><i class="fas fa-lock"></i> 100% anonymous. No business names. No phone numbers published.</p>
+                </div>
+                
+                <div class="heatmap-container">
+                    <div id="liveHeatmap" class="heatmap"></div>
+                    <div class="heatmap-legend">
+                        <div class="legend-item"><span class="dot critical"></span> Crisis (5+ reports)</div>
+                        <div class="legend-item"><span class="dot high"></span> High Pressure</div>
+                        <div class="legend-item"><span class="dot medium"></span> Moderate</div>
+                        <div class="legend-item"><span class="dot low"></span> Stable</div>
+                    </div>
+                    <div class="heatmap-timestamp">
+                        <i class="fas fa-map-marker-alt"></i> Showing Lagos, Abuja, P/Harcourt, Kano, Ibadan
+                        <span class="refresh-note">Updates every 30s</span>
+                    </div>
+                    
+                    <div class="mobile-top-cities">
+                        <h4><i class="fas fa-signal"></i> Top Pressure Cities</h4>
+                        <ul>
+                            <li><span>Port Harcourt</span><strong>Critical</strong></li>
+                            <li><span>Lagos</span><strong>High</strong></li>
+                            <li><span>Benin</span><strong>High</strong></li>
+                            <li><span>Ibadan</span><strong>Moderate</strong></li>
+                            <li><span>Abuja</span><strong>Moderate</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🔔 LIVE ALERT FEED - TICKER -->
+    <section class="role-journeys">
+        <div class="container">
+            <div class="role-journeys-head">
+                <h2>Choose your path in the food ecosystem</h2>
+                <p>Built for restaurant owners, workers, and customers across Nigeria. Each journey is private, quick, and tailored to what you face daily.</p>
+            </div>
+            <div class="role-journeys-grid">
+                <a class="journey-card owner" href="dashboard.html">
+                    <div class="journey-art">
+                        <img src="assets/illustrations/owner-market.svg" alt="Market owner managing diesel, supply and staffing pressure">
+                    </div>
+                    <div class="journey-title">
+                        <img src="assets/icons/owner-role.svg" alt="">
+                        <span>Owner diary</span>
+                    </div>
+                    <p>Log daily pressure in 3 taps: diesel, staff, spoilage, and leakages by city.</p>
+                    <span class="journey-link">Open owner dashboard</span>
+                </a>
+                <a class="journey-card worker" href="worker.html">
+                    <div class="journey-art">
+                        <img src="assets/illustrations/worker-kitchen.svg" alt="Kitchen worker reporting conditions anonymously">
+                    </div>
+                    <div class="journey-title">
+                        <img src="assets/icons/worker-role.svg" alt="">
+                        <span>Worker voice</span>
+                    </div>
+                    <p>Report wage issues and working conditions with no login and no identifiable traces.</p>
+                    <span class="journey-link">Submit anonymous report</span>
+                </a>
+                <a class="journey-card customer" href="customer.html">
+                    <div class="journey-art">
+                        <img src="assets/illustrations/customer-table.svg" alt="Customer sharing feedback at a food table">
+                    </div>
+                    <div class="journey-title">
+                        <img src="assets/icons/customer-role.svg" alt="">
+                        <span>Customer feedback</span>
+                    </div>
+                    <p>Scan and share quick feedback on portion size, value, and service quality.</p>
+                    <span class="journey-link">Give quick feedback</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="alert-ticker">
+        <div class="container">
+            <i class="fas fa-bullhorn ticker-icon"></i>
+            <div class="ticker-wrap">
+                <div class="ticker" id="liveTicker">
+                    <!-- Populated via JavaScript -->
+                    <span>🔴 Abuja: KAI raid reported in Wuse 2 • 2min ago</span>
+                    <span>🟡 Lagos: Diesel now ₦870/litre in Apapa • 7min ago</span>
+                    <span>🟠 Ibadan: Tomato price spike, 3 owners report spoilage • 12min ago</span>
+                    <span>🔵 PH: Port Harcourt owners report customer drop 40% • 18min ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📊 PRESSURE GAUGES - CITY STRESS INDEX -->
+    <section class="pressure-gauges">
+        <div class="container">
+            <div class="section-header">
+                <h2>🇳🇬 Industry Stress Index <span class="badge live-badge">LIVE</span></h2>
+                <p>Real-time pressure by city. Updated from owner diary entries.</p>
+            </div>
+            
+            <div class="city-grid" id="cityStressGrid">
+                <!-- Lagos -->
+                <div class="city-card high-stress">
+                    <div class="city-header">
+                        <h3>Lagos <span class="stress-label">HIGH</span></h3>
+                        <span class="city-update">2m ago</span>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="meter-bar" style="width: 78%"></div>
+                    </div>
+                    <div class="city-stats">
+                        <div class="city-stat"><i class="fas fa-gas-pump"></i> Diesel: 78%</div>
+                        <div class="city-stat"><i class="fas fa-users-slash"></i> Staff: 45%</div>
+                        <div class="city-stat"><i class="fas fa-cash-register"></i> Leakage: 32%</div>
+                        <div class="city-stat"><i class="fas fa-trash-alt"></i> Spoilage: 28%</div>
+                    </div>
+                    <button class="city-alert-btn"><i class="fas fa-bell"></i> Get alerts for Lagos</button>
+                </div>
+                
+                <!-- Abuja -->
+                <div class="city-card medium-stress">
+                    <div class="city-header">
+                        <h3>Abuja <span class="stress-label">MODERATE</span></h3>
+                        <span class="city-update">5m ago</span>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="meter-bar" style="width: 52%"></div>
+                    </div>
+                    <div class="city-stats">
+                        <div class="city-stat"><i class="fas fa-gas-pump"></i> Diesel: 52%</div>
+                        <div class="city-stat"><i class="fas fa-users-slash"></i> Staff: 23%</div>
+                        <div class="city-stat"><i class="fas fa-cash-register"></i> Leakage: 18%</div>
+                        <div class="city-stat"><i class="fas fa-trash-alt"></i> Spoilage: 15%</div>
+                    </div>
+                    <button class="city-alert-btn"><i class="fas fa-bell"></i> Get alerts for Abuja</button>
+                </div>
+                
+                <!-- Port Harcourt -->
+                <div class="city-card critical-stress">
+                    <div class="city-header">
+                        <h3>P/Harcourt <span class="stress-label">CRITICAL</span></h3>
+                        <span class="city-update">8m ago</span>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="meter-bar" style="width: 89%"></div>
+                    </div>
+                    <div class="city-stats">
+                        <div class="city-stat"><i class="fas fa-gas-pump"></i> Diesel: 89%</div>
+                        <div class="city-stat"><i class="fas fa-users-slash"></i> Staff: 51%</div>
+                        <div class="city-stat"><i class="fas fa-cash-register"></i> Leakage: 44%</div>
+                        <div class="city-stat"><i class="fas fa-trash-alt"></i> Spoilage: 37%</div>
+                    </div>
+                    <button class="city-alert-btn"><i class="fas fa-bell"></i> Get alerts for PH</button>
+                </div>
+                
+                <!-- Kano -->
+                <div class="city-card low-stress">
+                    <div class="city-header">
+                        <h3>Kano <span class="stress-label">LOW</span></h3>
+                        <span class="city-update">12m ago</span>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="meter-bar" style="width: 31%"></div>
+                    </div>
+                    <div class="city-stats">
+                        <div class="city-stat"><i class="fas fa-gas-pump"></i> Diesel: 31%</div>
+                        <div class="city-stat"><i class="fas fa-users-slash"></i> Staff: 12%</div>
+                        <div class="city-stat"><i class="fas fa-cash-register"></i> Leakage: 9%</div>
+                        <div class="city-stat"><i class="fas fa-trash-alt"></i> Spoilage: 11%</div>
+                    </div>
+                    <button class="city-alert-btn"><i class="fas fa-bell"></i> Get alerts for Kano</button>
+                </div>
+                
+                <!-- Ibadan -->
+                <div class="city-card medium-stress">
+                    <div class="city-header">
+                        <h3>Ibadan <span class="stress-label">MODERATE</span></h3>
+                        <span class="city-update">7m ago</span>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="meter-bar" style="width: 58%"></div>
+                    </div>
+                    <div class="city-stats">
+                        <div class="city-stat"><i class="fas fa-gas-pump"></i> Diesel: 58%</div>
+                        <div class="city-stat"><i class="fas fa-users-slash"></i> Staff: 27%</div>
+                        <div class="city-stat"><i class="fas fa-cash-register"></i> Leakage: 22%</div>
+                        <div class="city-stat"><i class="fas fa-trash-alt"></i> Spoilage: 19%</div>
+                    </div>
+                    <button class="city-alert-btn"><i class="fas fa-bell"></i> Get alerts for Ibadan</button>
+                </div>
+                
+                <!-- Benin -->
+                <div class="city-card high-stress">
+                    <div class="city-header">
+                        <h3>Benin <span class="stress-label">HIGH</span></h3>
+                        <span class="city-update">15m ago</span>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="meter-bar" style="width: 71%"></div>
+                    </div>
+                    <div class="city-stats">
+                        <div class="city-stat"><i class="fas fa-gas-pump"></i> Diesel: 71%</div>
+                        <div class="city-stat"><i class="fas fa-users-slash"></i> Staff: 38%</div>
+                        <div class="city-stat"><i class="fas fa-cash-register"></i> Leakage: 29%</div>
+                        <div class="city-stat"><i class="fas fa-trash-alt"></i> Spoilage: 24%</div>
+                    </div>
+                    <button class="city-alert-btn"><i class="fas fa-bell"></i> Get alerts for Benin</button>
+                </div>
+            </div>
+            
+            <div class="stress-note">
+                <i class="fas fa-info-circle"></i> Based on owner reports of issues in last 24h. <a href="#">Learn how we calculate stress index →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 📝 CONFESSION WALL PREVIEW -->
+    <section class="confession-preview">
+        <div class="container">
+            <div class="section-header with-action">
+                <h2><i class="fas fa-comment-dots"></i> Anonymous Confession Wall</h2>
+                <a href="confession-wall.html" class="btn btn-text">View all <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="confession-grid" id="confessionPreview">
+                <!-- Populated via Firebase -->
+                <div class="confession-card">
+                    <div class="confession-header">
+                        <span class="confession-city"><i class="fas fa-map-marker-alt"></i> Lagos, Surulere</span>
+                        <span class="confession-time">2h ago</span>
+                    </div>
+                    <p class="confession-text">"I work at a fast-food joint. My boss deducts 'breakage' from our pay even when we didn't break anything. I can't quit."</p>
+                    <div class="confession-footer">
+                        <span class="confession-role worker">👤 Worker</span>
+                        <span class="confession-views"><i class="fas fa-eye"></i> 342</span>
+                        <span class="confession-reactions"><i class="fas fa-heart"></i> 28</span>
+                    </div>
+                </div>
+                
+                <div class="confession-card">
+                    <div class="confession-header">
+                        <span class="confession-city"><i class="fas fa-map-marker-alt"></i> Abuja, Wuse</span>
+                        <span class="confession-time">5h ago</span>
+                    </div>
+                    <p class="confession-text">"I spent N85,000 on diesel this week. My profit was N62,000. I am working to fuel my generator, not to feed my family."</p>
+                    <div class="confession-footer">
+                        <span class="confession-role owner">👤 Owner</span>
+                        <span class="confession-views"><i class="fas fa-eye"></i> 891</span>
+                        <span class="confession-reactions"><i class="fas fa-heart"></i> 124</span>
+                    </div>
+                </div>
+                
+                <div class="confession-card">
+                    <div class="confession-header">
+                        <span class="confession-city"><i class="fas fa-map-marker-alt"></i> Port Harcourt</span>
+                        <span class="confession-time">8h ago</span>
+                    </div>
+                    <p class="confession-text">"My supplier increased tomato price 3 times this week. I had to reduce my jollof portion. Customers are angry. I'm angry."</p>
+                    <div class="confession-footer">
+                        <span class="confession-role owner">👤 Owner</span>
+                        <span class="confession-views"><i class="fas fa-eye"></i> 567</span>
+                        <span class="confession-reactions"><i class="fas fa-heart"></i> 83</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confession-cta">
+                <button class="btn btn-large btn-secondary" id="shareConfessionBtn"><i class="fas fa-pen"></i> Share your anonymous truth</button>
+                <p class="privacy-note-small"><i class="fas fa-lock"></i> No login required. No IP tracking. Completely anonymous.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 📱 HOW IT WORKS -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>The first early warning system for Nigerian food businesses</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-book"></i></div>
+                    <h3>Daily 3-Tap Diary</h3>
+                    <p>Owners log diesel costs, staff issues, spoilage and leakage in under 60 seconds. Anonymous by design.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                    <h3>Hyperlocal Alerts</h3>
+                    <p>Get notified when prices spike, raids happen or suppliers fail in your area. Configure your radar.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>Worker Protection</h3>
+                    <p>Casual staff can report wage theft, unstable hours and unsafe conditions. No employer names collected.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                    <h3>Competitor Radar</h3>
+                    <p>See what other owners in your area are struggling with. Benchmark your operation anonymously.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🚨 INTERVENTION REQUEST -->
+    <section class="intervention">
+        <div class="container">
+            <div class="intervention-box">
+                <div class="intervention-content">
+                    <h2>In crisis? We connect you to help.</h2>
+                    <p>Generator died? Unpaid wages for 3 weeks? The Ledger partners with microfinance institutions and labour rights orgs.</p>
+                    <div class="intervention-buttons">
+                        <button class="btn btn-white" id="ownerHelpBtn"><i class="fas fa-store"></i> I'm an owner — I need help</button>
+                        <button class="btn btn-outline-white" id="workerHelpBtn"><i class="fas fa-shield"></i> I'm a worker — I need help</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 📰 PUBLIC PULSE TEASER -->
+    <section class="pulse-teaser">
+        <div class="container">
+            <div class="pulse-grid">
+                <div class="pulse-content">
+                    <span class="pulse-tag">📊 WEEKLY REPORT</span>
+                    <h3>Public Pulse: Nigeria Food Industry Pressure Index</h3>
+                    <p>Free download. Diesel up 12% week-on-week. Worker casualisation at 67% in Lagos QSRs. Customer portion complaints spike 40%.</p>
+                    <a href="public-pulse.html" class="btn btn-primary">Read this week's report →</a>
+                </div>
+                <div class="pulse-stats">
+                    <div class="pulse-stat">
+                        <div class="pulse-number">+12%</div>
+                        <div>Diesel (WoW)</div>
+                    </div>
+                    <div class="pulse-stat">
+                        <div class="pulse-number">67%</div>
+                        <div>Casual staff</div>
+                    </div>
+                    <div class="pulse-stat">
+                        <div class="pulse-number">40%</div>
+                        <div>Portion complaints</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 👣 FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-icon"><i class="fas fa-book-open"></i></span>
+                        <span class="logo-text">THE LEDGER</span>
+                    </div>
+                    <p>Exposing the hidden pressures of Nigeria's food industry. Anonymous. Independent. For the industry, by the industry.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Participate</h4>
+                    <a href="dashboard.html">Owner Diary</a>
+                    <a href="worker.html">Worker Anonymous Portal</a>
+                    <a href="customer.html">Customer Feedback</a>
+                    <a href="confession-wall.html">Confession Wall</a>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Intelligence</h4>
+                    <a href="public-pulse.html">Public Pulse Reports</a>
+                    <a href="#">Live Heatmap</a>
+                    <a href="#">City Stress Index</a>
+                    <a href="#">Alert History</a>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>About</h4>
+                    <a href="#">Our Mission</a>
+                    <a href="#">Privacy & Anonymity</a>
+                    <a href="#">Partner with us</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 THE LEDGER. Built for Nigeria's food industry.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Report a bug</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Configuration -->
+    <script src="js/config.js"></script>
+
+    <!-- Custom JS -->
+    <script src="js/heatmap.js"></script>
+    <script src="js/alerts.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Diary Entries (Owners)
+    // Anyone can create (anonymous), but only the creator can read their own raw entries
+    match /diary_entries/{entryId} {
+      allow create: if true; // Allow anonymous writes
+      allow read: if resource.data.anonymous_id == request.auth.uid;
+    }
+
+    // 2. Worker Reports
+    // Write-only for the public. Only admins (backend) can read raw reports.
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read: if false; // Private: processed by Cloud Functions only
+    }
+
+    // 3. Confession Wall
+    // Public can read, but only create. 
+    // In production, add 'approved: true' check for reading.
+    match /confessions/{confessionId} {
+      allow create: if true;
+      allow read: if true; // Public feed
+    }
+
+    // 4. Customer Feedback
+    // Write-only.
+    match /customer_feedback/{feedbackId} {
+      allow create: if true;
+      allow read: if false;
+    }
+
+    // 5. SMS Subscriptions
+    // Users can subscribe, but not read the list of numbers
+    match /sms_subscriptions/{subId} {
+      allow create: if true;
+      allow read: if false;
+    }
+  }
+}

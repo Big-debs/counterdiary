@@ -1,0 +1,82 @@
+services:
+  # PostgreSQL with TimescaleDB
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: ledger_postgres
+    environment:
+      POSTGRES_DB: ledger
+      POSTGRES_USER: ledger_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ledger_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - ledger_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger_admin -d ledger"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and real-time
+  redis:
+    image: redis:7-alpine
+    container_name: ledger_redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-ledger_redis_password}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ledger_network
+
+  # Node.js Intelligence Engine
+  backend:
+    build: ./backend
+    container_name: ledger_backend
+    env_file:
+      - .env.production.sh
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ledger_admin
+      DB_PASSWORD: ${DB_PASSWORD:-ledger_dev_password}
+      DB_NAME: ledger
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-ledger_redis_password}
+      NODE_ENV: production
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - ledger_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # Nginx for reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ledger_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+    networks:
+      - ledger_network
+    depends_on:
+      - backend
+
+networks:
+  ledger_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

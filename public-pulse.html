@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Public Pulse · Nigeria Food Industry Intelligence · THE LEDGER</title>
+    <meta name="description" content="Free weekly reports on Nigeria's food industry: diesel prices, worker conditions, customer sentiment and pressure indexes.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Public Pulse Specific Styles */
+        .pulse-hero {
+            background: linear-gradient(135deg, #0a2647, #0e2e4f);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pulse-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("assets/patterns/adire-grid.svg") center/260px 260px;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .pulse-hero .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .pulse-hero h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .pulse-hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .pulse-role-strip {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pulse-role-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.14);
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .pulse-role-tag img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .report-meta {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .featured-report {
+            background: white;
+            border-radius: 32px;
+            padding: 48px;
+            margin-top: -40px;
+            margin-bottom: 60px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            z-index: 20;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .report-badge {
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .download-btn {
+            background: var(--gray-900);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin: 48px 0;
+        }
+        
+        .kpi-card {
+            background: var(--gray-50);
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .kpi-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+        
+        .chart-container {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 24px;
+            padding: 32px;
+            margin: 40px 0;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .chart-placeholder {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(145deg, #f9fafb, #f3f4f6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-400);
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-placeholder::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(199,56,43,0.02) 0px,
+                rgba(199,56,43,0.02) 10px,
+                rgba(255,255,255,0.02) 10px,
+                rgba(255,255,255,0.02) 20px
+            );
+        }
+        
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin: 48px 0;
+        }
+        
+        .insight-card {
+            background: var(--gray-50);
+            border-radius: 24px;
+            padding: 32px;
+            border-left: 6px solid var(--primary);
+        }
+        
+        .insight-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.25rem;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .city-pressure-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+        }
+        
+        .city-pressure-table th {
+            text-align: left;
+            padding: 16px;
+            background: var(--gray-100);
+            font-weight: 600;
+        }
+        
+        .city-pressure-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .pressure-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .archive-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.2s;
+        }
+        
+        .archive-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        
+        .archive-date {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+        }
+        
+        .archive-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+        
+        .methodology-box {
+            background: var(--gray-900);
+            color: white;
+            border-radius: 24px;
+            padding: 48px;
+            margin: 60px 0;
+        }
+        
+        .newsletter-signup {
+            background: linear-gradient(135deg, #fff5f3, white);
+            border: 2px solid var(--primary);
+            border-radius: 32px;
+            padding: 48px;
+            margin: 60px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 1024px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+            .archive-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .pulse-hero h1 {
+                font-size: 2.25rem;
+            }
+            .pulse-role-strip {
+                gap: 8px;
+            }
+            .pulse-role-tag {
+                font-size: 0.8rem;
+                padding: 7px 12px;
+            }
+            .featured-report {
+                padding: 32px 20px;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .archive-grid {
+                grid-template-columns: 1fr;
+            }
+            .report-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🧭 NAVIGATION -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon"><i class="fas fa-book-open"></i></span>
+                    <span class="logo-text">THE LEDGER</span>
+                    <span class="logo-badge">BETA</span>
+                </a>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                    <a href="confession-wall.html" class="nav-link"><i class="fas fa-comment-dots"></i> Confession Wall</a>
+                    <a href="public-pulse.html" class="nav-link active"><i class="fas fa-newspaper"></i> Public Pulse</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="btn btn-outline" onclick="window.location.href='dashboard.html'"><i class="fas fa-store"></i> Are you an owner?</button>
+                <button class="btn btn-primary" onclick="window.location.href='worker.html'"><i class="fas fa-shield"></i> Worker? Speak anonymously</button>
+            </div>
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- 📈 PULSE HERO -->
+    <div class="pulse-hero">
+        <div class="container">
+            <span style="background: var(--primary); padding: 8px 20px; border-radius: 100px; font-size: 0.9rem; font-weight: 700; display: inline-block; margin-bottom: 24px;">
+                📊 WEEK 7, 2024 · PUBLIC RELEASE
+            </span>
+            <h1>Nigeria Food Industry<br>Pressure Index</h1>
+            <p>Real intelligence from 2,847 anonymous diaries, 1,203 owners, and 4,231 worker reports. Free for the industry.</p>
+            <div class="pulse-role-strip">
+                <span class="pulse-role-tag"><img src="assets/icons/owner-role.svg" alt="">Owner diaries</span>
+                <span class="pulse-role-tag"><img src="assets/icons/worker-role.svg" alt="">Worker reports</span>
+                <span class="pulse-role-tag"><img src="assets/icons/customer-role.svg" alt="">Customer feedback</span>
+            </div>
+            <div class="report-meta">
+                <span><i class="fas fa-database"></i> 12,847 data points</span>
+                <span><i class="fas fa-map-marker-alt"></i> 6 cities tracked</span>
+                <span><i class="fas fa-clock"></i> Updated 2 hours ago</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 📌 FEATURED REPORT -->
+        <div class="featured-report">
+            <div class="report-header">
+                <div>
+                    <span class="report-badge">🔥 FEATURED REPORT</span>
+                    <h2 style="font-size: 1.75rem; margin-top: 16px;">The Diesel Tax: How Energy Costs Are Reshaping Nigerian Restaurants</h2>
+                </div>
+                <button class="download-btn">
+                    <i class="fas fa-file-pdf"></i> Download Full Report (PDF)
+                </button>
+            </div>
+            
+            <p style="font-size: 1.1rem; color: var(--gray-600); margin-bottom: 32px;">
+                Nigerian restaurants now spend an average of ₦87,000 monthly on diesel — 31% of total operating costs. 1 in 4 owners report negative profit margins after energy expenses.
+            </p>
+            
+            <!-- KPI GRID -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">NATIONAL DIESEL AVG</div>
+                    <div class="kpi-value">₦872</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +12% week-on-week
+                    </div>
+                    <span style="font-size: 0.85rem; color: var(--gray-500);">per litre</span>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-title">OWNERSHIP STRESS INDEX</div>
+                    <div class="kpi-value">78%</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +8% from January
+                    </div>
+                    <span style="font-size: 0.85rem; color: var(--gray-500);">reporting daily diesel issues</span>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-title">CASUAL WORKFORCE</div>
+                    <div class="kpi-value">67%</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +15% year-on-year
+                    </div>
+                    <span style="font-size: 0.85rem; color: var(--gray-500);">of staff are casual/daily pay</span>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-title">PORTION SHRINKAGE</div>
+                    <div class="kpi-value">41%</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> +23% in 6 months
+                    </div>
+                    <span style="font-size: 0.85rem; color: var(--gray-500);">customers report smaller portions</span>
+                </div>
+            </div>
+            
+            <!-- CHART: Diesel Prices by City -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 style="font-size: 1.35rem;">Diesel Price Trends by City</h3>
+                    <span style="background: var(--gray-100); padding: 8px 16px; border-radius: 100px; font-size: 0.9rem;">
+                        <i class="fas fa-calendar"></i> Last 30 days
+                    </span>
+                </div>
+                
+                <div class="chart-placeholder">
+                    <div style="text-align: center; position: relative; z-index: 5;">
+                        <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--primary); opacity: 0.5; margin-bottom: 16px;"></i>
+                        <p style="color: var(--gray-600);">Interactive chart loading</p>
+                        <p style="font-size: 0.9rem; color: var(--gray-400);">Port Harcourt: ₦910/L · Lagos: ₦872/L · Abuja: ₦845/L</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+                    <div style="display: flex; gap: 20px;">
+                        <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 12px; height: 12px; background: var(--primary); border-radius: 4px;"></span> Lagos</span>
+                        <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 12px; height: 12px; background: #f59e0b; border-radius: 4px;"></span> Abuja</span>
+                        <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 12px; height: 12px; background: #10b981; border-radius: 4px;"></span> Port Harcourt</span>
+                        <span style="display: flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 12px; height: 12px; background: #8b5cf6; border-radius: 4px;"></span> Kano</span>
+                    </div>
+                    <span style="color: var(--gray-500); font-size: 0.9rem;">Source: 3,847 owner diary entries</span>
+                </div>
+            </div>
+            
+            <!-- Key Insights Grid -->
+            <div class="report-grid">
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-gas-pump"></i>
+                    </div>
+                    <h3 style="margin-bottom: 16px;">Self-Provisioning Penalty</h3>
+                    <p style="color: var(--gray-600); margin-bottom: 20px;">78% of owners run generators for 12+ hours daily. Average monthly diesel cost: ₦87,000 — up from ₦52,000 in 2023.</p>
+                    <span style="color: var(--primary); font-weight: 600;">
+                        <i class="fas fa-exclamation-triangle"></i> Critical pressure point
+                    </span>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <h3 style="margin-bottom: 16px;">The Casualisation Crisis</h3>
+                    <p style="color: var(--gray-600); margin-bottom: 20px;">67% of food service workers are casual staff. 43% report wage theft. 78% have no written contract.</p>
+                    <span style="color: var(--warning); font-weight: 600;">
+                        <i class="fas fa-chart-line"></i> Rising trend
+                    </span>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3 style="margin-bottom: 16px;">Spoilage & Supply Chains</h3>
+                    <p style="color: var(--gray-600); margin-bottom: 20px;">Tomato spoilage affects 52% of restaurants weekly. 38% report supplier failures as primary business risk.</p>
+                    <span style="color: var(--gray-600); font-weight: 600;">
+                        <i class="fas fa-map-marker-alt"></i> Worst in Lagos, PH
+                    </span>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-shield-haltered"></i>
+                    </div>
+                    <h3 style="margin-bottom: 16px;">Harassment & Extortion</h3>
+                    <p style="color: var(--gray-600); margin-bottom: 20px;">23% of owners reported KAI/police harassment in Feb 2024. Average loss per incident: ₦18,500.</p>
+                    <span style="color: var(--danger); font-weight: 600;">
+                        <i class="fas fa-arrow-up"></i> +31% from Q4 2023
+                    </span>
+                </div>
+            </div>
+            
+            <!-- City Pressure Table -->
+            <h3 style="margin: 48px 0 24px;">City-by-City Pressure Index</h3>
+            
+            <table class="city-pressure-table">
+                <thead>
+                    <tr>
+                        <th>City</th>
+                        <th>Stress Level</th>
+                        <th>Diesel (₦/L)</th>
+                        <th>Staff Shortage</th>
+                        <th>Spoilage Rate</th>
+                        <th>Leakage</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Lagos</strong></td>
+                        <td><span class="pressure-indicator" style="background: #ef4444;"></span> Critical</td>
+                        <td>₦872</td>
+                        <td>45%</td>
+                        <td>28%</td>
+                        <td>32%</td>
+                        <td><span style="color: #ef4444;"><i class="fas fa-arrow-up"></i> +12%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Port Harcourt</strong></td>
+                        <td><span class="pressure-indicator" style="background: #ef4444;"></span> Critical</td>
+                        <td>₦910</td>
+                        <td>51%</td>
+                        <td>37%</td>
+                        <td>44%</td>
+                        <td><span style="color: #ef4444;"><i class="fas fa-arrow-up"></i> +18%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Abuja</strong></td>
+                        <td><span class="pressure-indicator" style="background: #f59e0b;"></span> High</td>
+                        <td>₦845</td>
+                        <td>23%</td>
+                        <td>15%</td>
+                        <td>18%</td>
+                        <td><span style="color: #10b981;"><i class="fas fa-arrow-down"></i> -5%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ibadan</strong></td>
+                        <td><span class="pressure-indicator" style="background: #f59e0b;"></span> High</td>
+                        <td>₦798</td>
+                        <td>27%</td>
+                        <td>19%</td>
+                        <td>22%</td>
+                        <td><span style="color: #f59e0b;"><i class="fas fa-minus"></i> Stable</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kano</strong></td>
+                        <td><span class="pressure-indicator" style="background: #10b981;"></span> Moderate</td>
+                        <td>₦720</td>
+                        <td>12%</td>
+                        <td>11%</td>
+                        <td>9%</td>
+                        <td><span style="color: #10b981;"><i class="fas fa-arrow-down"></i> -8%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Benin</strong></td>
+                        <td><span class="pressure-indicator" style="background: #f59e0b;"></span> High</td>
+                        <td>₦835</td>
+                        <td>38%</td>
+                        <td>24%</td>
+                        <td>29%</td>
+                        <td><span style="color: #ef4444;"><i class="fas fa-arrow-up"></i> +7%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 24px; color: var(--gray-500); font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> Based on owner diary entries from Feb 5-11, 2024. Stress level = composite of diesel, staff, spoilage and leakage reports.
+            </div>
+        </div>
+        
+        <!-- 📚 REPORT ARCHIVE -->
+        <h2 style="margin: 60px 0 32px;">📚 Industry Intelligence Archive</h2>
+        
+        <div class="archive-grid">
+            <div class="archive-card">
+                <div class="archive-date">WEEK 6, 2024</div>
+                <div class="archive-title">The Casualisation Report</div>
+                <p style="color: var(--gray-600); margin-bottom: 20px;">Deep dive into Nigeria's casual food workforce: wages, conditions, and the hidden costs.</p>
+                <a href="#" style="color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    Read report <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="archive-card">
+                <div class="archive-date">WEEK 5, 2024</div>
+                <div class="archive-title">Tomato Supply Chain Crisis</div>
+                <p style="color: var(--gray-600); margin-bottom: 20px;">Why Nigerian restaurants are paying 200% more and still can't get fresh tomatoes.</p>
+                <a href="#" style="color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    Read report <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="archive-card">
+                <div class="archive-date">WEEK 4, 2024</div>
+                <div class="archive-title">Customer Loyalty Ceiling</div>
+                <p style="color: var(--gray-600); margin-bottom: 20px;">When eating out becomes a luxury: 41% of customers reducing restaurant visits.</p>
+                <a href="#" style="color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    Read report <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="archive-card">
+                <div class="archive-date">WEEK 3, 2024</div>
+                <div class="archive-title">Revenue Leakage Index</div>
+                <p style="color: var(--gray-600); margin-bottom: 20px;">How Nigerian restaurants lose 15-20% of revenue to cash theft and manual errors.</p>
+                <a href="#" style="color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    Read report <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="archive-card">
+                <div class="archive-date">WEEK 2, 2024</div>
+                <div class="archive-title">Q1 2024 Forecast</div>
+                <p style="color: var(--gray-600); margin-bottom: 20px;">12-month outlook for diesel, food inflation, and consumer spending patterns.</p>
+                <a href="#" style="color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    Read report <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="archive-card">
+                <div class="archive-date">WEEK 1, 2024</div>
+                <div class="archive-title">Year in Review 2023</div>
+                <p style="color: var(--gray-600); margin-bottom: 20px;">The full year data: diesel up 87%, casualisation up 23%, restaurant closures +41%.</p>
+                <a href="#" style="color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    Read report <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- 🔬 METHODOLOGY -->
+        <div class="methodology-box">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 48px; align-items: center;">
+                <div style="text-align: center;">
+                    <i class="fas fa-flask" style="font-size: 4rem; color: rgba(255,255,255,0.5); margin-bottom: 20px;"></i>
+                    <h3 style="color: white; font-size: 1.5rem;">Methodology</h3>
+                </div>
+                <div>
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.05rem;">
+                        Public Pulse reports are generated from anonymized, aggregated data from THE LEDGER diary platform. We collect:
+                    </p>
+                    <ul style="color: rgba(255,255,255,0.8); list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 12px;"></i> Daily owner diary entries (diesel costs, staff, spoilage, leakage)</li>
+                        <li style="margin-bottom: 12px;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 12px;"></i> Anonymous worker reports (wages, conditions, casualization)</li>
+                        <li style="margin-bottom: 12px;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 12px;"></i> Customer feedback (portion size, price trust, loyalty)</li>
+                    </ul>
+                    <p style="color: rgba(255,255,255,0.7); margin-top: 20px; font-size: 0.95rem;">
+                        All data is anonymized at source. No business names, no phone numbers, no IP addresses. Reports are released weekly under Creative Commons — free to share with attribution.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 📧 NEWSLETTER -->
+        <div class="newsletter-signup">
+            <i class="fas fa-envelope-open-text" style="font-size: 3rem; color: var(--primary); margin-bottom: 24px;"></i>
+            <h2 style="font-size: 2rem; margin-bottom: 16px;">Get the Pulse in your inbox</h2>
+            <p style="color: var(--gray-600); font-size: 1.1rem; max-width: 600px; margin: 0 auto 32px;">
+                Free weekly industry intelligence. No spam. Unsubscribe anytime.
+            </p>
+            
+            <div style="display: flex; max-width: 500px; margin: 0 auto; gap: 12px;">
+                <input type="email" placeholder="Your email address" style="flex: 1; padding: 18px 24px; border: 2px solid var(--gray-200); border-radius: 16px; font-size: 1rem;">
+                <button class="btn btn-primary" style="padding: 18px 32px;">
+                    <i class="fas fa-paper-plane"></i> Subscribe
+                </button>
+            </div>
+            <p style="color: var(--gray-500); font-size: 0.85rem; margin-top: 20px;">
+                <i class="fas fa-lock"></i> We never share your data. Read our privacy policy.
+            </p>
+        </div>
+        
+        <!-- 📢 MEDIA & PARTNERS -->
+        <div style="text-align: center; margin: 80px 0;">
+            <h3 style="margin-bottom: 32px;">Trusted by industry leaders</h3>
+            <div style="display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; align-items: center; opacity: 0.7;">
+                <span style="font-weight: 800; font-size: 1.5rem; color: var(--gray-400);">FoodCo</span>
+                <span style="font-weight: 800; font-size: 1.5rem; color: var(--gray-400);">Chicken Republic</span>
+                <span style="font-weight: 800; font-size: 1.5rem; color: var(--gray-400);">Kilimanjaro</span>
+                <span style="font-weight: 800; font-size: 1.5rem; color: var(--gray-400);">NIPFD</span>
+                <span style="font-weight: 800; font-size: 1.5rem; color: var(--gray-400);">LBS</span>
+            </div>
+            <p style="color: var(--gray-500); margin-top: 32px;">
+                Media inquiries: press@counterdiary.ng · Partnership: partners@counterdiary.ng
+            </p>
+        </div>
+    </div>
+    
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-icon"><i class="fas fa-book-open"></i></span>
+                        <span class="logo-text">THE LEDGER</span>
+                    </div>
+                    <p>Exposing the hidden pressures of Nigeria's food industry. Anonymous. Independent. For the industry, by the industry.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Participate</h4>
+                    <a href="dashboard.html">Owner Diary</a>
+                    <a href="worker.html">Worker Anonymous Portal</a>
+                    <a href="customer.html">Customer Feedback</a>
+                    <a href="confession-wall.html">Confession Wall</a>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Intelligence</h4>
+                    <a href="public-pulse.html">Public Pulse Reports</a>
+                    <a href="index.html">Live Heatmap</a>
+                    <a href="public-pulse.html#city-index">City Stress Index</a>
+                    <a href="#">Alert History</a>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>About</h4>
+                    <a href="#">Our Mission</a>
+                    <a href="#">Privacy & Anonymity</a>
+                    <a href="#">Partner with us</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 THE LEDGER. Built for Nigeria's food industry.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Report a bug</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script>
+        // Newsletter signup
+        document.querySelector('.newsletter-signup .btn-primary')?.addEventListener('click', function() {
+            const email = document.querySelector('.newsletter-signup input[type="email"]')?.value;
+            
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            fetch('/api/newsletter/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Client-Type': 'public-pulse'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    source: 'public_pulse'
+                })
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    let errorMessage = 'Subscription failed.';
+                    try {
+                        const errorBody = await response.json();
+                        errorMessage = errorBody.error || errorMessage;
+                    } catch (parseError) {
+                        // Keep default
+                    }
+                    throw new Error(errorMessage);
+                }
+                return response.json();
+            })
+            .then(() => {
+                alert('Subscribed. Check your inbox for confirmation.');
+            })
+            .catch(error => {
+                console.error('Newsletter subscribe error:', error);
+                alert('Error: ' + (error.message || 'Subscription failed. Please try again.'));
+            });
+        });
+        
+        // Download report
+        document.querySelector('.download-btn')?.addEventListener('click', function() {
+            alert('📄 Report download started. (Demo - PDF generation would happen here)');
+        });
+        // Mobile nav toggle
+        document.querySelector('.mobile-menu-btn')?.addEventListener('click', function() {
+            document.querySelector('.navbar')?.classList.toggle('mobile-open');
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

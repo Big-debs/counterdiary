@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Help this restaurant serve you better · THE LEDGER</title>
+    <meta name="description" content="Anonymous customer feedback for Nigerian restaurants. 2 taps. No login. Your voice helps fix portion sizes and pricing.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* QR Landing Page Specific */
+        .qr-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .restaurant-header {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow);
+            background-image: url("assets/patterns/adire-grid.svg");
+            background-size: 260px 260px;
+            background-position: center;
+            background-blend-mode: lighten;
+        }
+        
+        .restaurant-icon {
+            width: 80px;
+            height: 80px;
+            background: #fff5f3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        .restaurant-icon img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+        
+        .restaurant-name {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .restaurant-location {
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .anonymous-badge {
+            background: #e0f2fe;
+            color: #075985;
+            padding: 8px 20px;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .feedback-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .feedback-question {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        
+        .emoji-rating {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .emoji-btn {
+            aspect-ratio: 1;
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .emoji-btn:hover {
+            border-color: var(--primary);
+            background: #fff5f3;
+            transform: scale(1.02);
+        }
+        
+        .emoji-btn.selected {
+            border-color: var(--primary);
+            background: #fff5f3;
+        }
+        
+        .emoji {
+            font-size: 2rem;
+        }
+        
+        .emoji-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+        
+        .two-option-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .option-card {
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option-card:hover {
+            border-color: var(--primary);
+            background: #fff5f3;
+        }
+        
+        .option-card.selected {
+            border-color: var(--primary);
+            background: #fff5f3;
+        }
+        
+        .option-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        
+        .option-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .btn-submit-feedback {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .btn-submit-feedback:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+        }
+        
+        .restaurant-footer {
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+            padding: 20px;
+        }
+        
+        .powered-by {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 40px;
+            color: var(--gray-400);
+        }
+        
+        /* QR Code Generator Section (for owners) */
+        .qr-generator {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-top: 40px;
+            border: 1px dashed var(--primary);
+        }
+        
+        .qr-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            background: var(--gray-50);
+            border-radius: 16px;
+        }
+        
+        @media (max-width: 480px) {
+            .emoji-rating {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .two-option-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body style="background: var(--gray-50);">
+    <!-- QR Code Scanner Detection -->
+    <div style="display: none;" id="restaurantData" data-name="Mama Cass Kitchen" data-location="Surulere, Lagos" data-id="MCK123"></div>
+    
+    <div class="qr-container">
+        <!-- Restaurant Header -->
+        <div class="restaurant-header">
+            <div class="restaurant-icon">
+                <img src="assets/icons/customer-role.svg" alt="Customer feedback icon">
+            </div>
+            <h1 class="restaurant-name" id="restaurantName">Mama Cass Kitchen</h1>
+            <div class="restaurant-location">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="restaurantLocation">Surulere, Lagos</span>
+            </div>
+            <span class="anonymous-badge">
+                <i class="fas fa-lock"></i> 100% Anonymous · No tracking
+            </span>
+        </div>
+        
+        <!-- Feedback Form -->
+        <div class="feedback-card">
+            <div class="feedback-question">
+                👋 Hi there! Help this restaurant serve you better. Two taps, done.
+            </div>
+            
+            <!-- QUESTION 1: Portion satisfaction -->
+            <div style="margin-bottom: 32px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.1rem;">How did the portion size feel today?</h3>
+                
+                <div class="emoji-rating" id="portionRating">
+                    <div class="emoji-btn" data-value="too_small">
+                        <span class="emoji">😞</span>
+                        <span class="emoji-label">Too small</span>
+                    </div>
+                    <div class="emoji-btn" data-value="small">
+                        <span class="emoji">😕</span>
+                        <span class="emoji-label">Small</span>
+                    </div>
+                    <div class="emoji-btn" data-value="just_right">
+                        <span class="emoji">😊</span>
+                        <span class="emoji-label">Just right</span>
+                    </div>
+                    <div class="emoji-btn" data-value="large">
+                        <span class="emoji">😮</span>
+                        <span class="emoji-label">Large</span>
+                    </div>
+                    <div class="emoji-btn" data-value="too_large">
+                        <span class="emoji">😲</span>
+                        <span class="emoji-label">Too large</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QUESTION 2: Price match -->
+            <div style="margin-bottom: 32px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Did the menu price match what you were charged?</h3>
+                
+                <div class="two-option-grid" id="priceMatch">
+                    <div class="option-card" data-value="yes">
+                        <div class="option-icon">✅</div>
+                        <div class="option-title">Yes, matched</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-500);">Price was correct</div>
+                    </div>
+                    <div class="option-card" data-value="no">
+                        <div class="option-icon">❌</div>
+                        <div class="option-title">No, different</div>
+                        <div style="font-size: 0.85rem; color: var(--gray-500);">Charged more/less</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QUESTION 3: Would you return? -->
+            <div style="margin-bottom: 16px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.1rem;">Will you come back next week?</h3>
+                
+                <div class="two-option-grid" id="returnVisit">
+                    <div class="option-card" data-value="yes">
+                        <div class="option-icon">👍</div>
+                        <div class="option-title">Yes, definitely</div>
+                    </div>
+                    <div class="option-card" data-value="no">
+                        <div class="option-icon">👎</div>
+                        <div class="option-title">Probably not</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Optional comment -->
+            <div style="margin-top: 24px;">
+                <textarea id="customerComment" placeholder="Optional: Anything else? (Anonymous)" style="width: 100%; padding: 16px; border: 1.5px solid var(--gray-200); border-radius: 16px; min-height: 80px; font-family: inherit;"></textarea>
+            </div>
+            
+            <!-- Submit button -->
+            <button class="btn-submit-feedback" id="submitFeedbackBtn" disabled>
+                <i class="fas fa-check-circle"></i> Submit Anonymous Feedback
+            </button>
+            
+            <p style="text-align: center; color: var(--gray-500); font-size: 0.8rem; margin-top: 20px;">
+                <i class="fas fa-shield"></i> We never ask for your name, email, or phone. This is completely anonymous.
+            </p>
+        </div>
+        
+        <!-- What happens next -->
+        <div style="background: white; border-radius: 24px; padding: 24px; border: 1px solid var(--gray-200);">
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="background: #e0f2fe; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #075985;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                    <strong>Your feedback is anonymous, but powerful.</strong>
+                    <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: 4px;">This restaurant receives weekly reports on portion sentiment and pricing trust — without ever knowing who spoke.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="powered-by">
+            <i class="fas fa-book-open" style="color: var(--primary);"></i>
+            <span>Powered by THE LEDGER · Industry intelligence for Nigerian food businesses</span>
+        </div>
+    </div>
+    
+    <!-- QR Code Generator (Hidden by default - for owners) -->
+    <div class="container" style="max-width: 600px; margin-top: 60px;" id="qrGeneratorSection">
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid var(--gray-200);">
+        
+        <div class="qr-generator">
+            <h2 style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                <i class="fas fa-qrcode" style="color: var(--primary);"></i>
+                Generate Your Restaurant's QR Code
+            </h2>
+            <p style="color: var(--gray-600); margin-bottom: 24px;">Print this and place on tables. Customers scan → anonymous feedback → you get weekly insights.</p>
+            
+            <div class="qr-preview">
+                <div id="qrCode" style="background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+                    <!-- QR code will be generated here -->
+                    <canvas id="qrCanvas"></canvas>
+                </div>
+                
+                <div style="width: 100%;">
+                    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                        <input type="text" id="restaurantNameInput" placeholder="Your restaurant name" value="Mama Cass Kitchen" style="flex: 1; padding: 12px; border: 1.5px solid var(--gray-200); border-radius: 12px;">
+                        <input type="text" id="restaurantLocationInput" placeholder="Location" value="Surulere, Lagos" style="flex: 1; padding: 12px; border: 1.5px solid var(--gray-200); border-radius: 12px;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button id="generateQRBtn" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-qrcode"></i> Generate QR Code
+                        </button>
+                        <button id="downloadQRBtn" class="btn btn-outline" style="flex: 1;">
+                            <i class="fas fa-download"></i> Download for Print
+                        </button>
+                    </div>
+                    
+                    <p style="font-size: 0.85rem; color: var(--gray-500); margin-top: 20px;">
+                        <i class="fas fa-info-circle"></i> Table tents: Print on cardstock, fold in half. QR links to counterdiary.ng/customer?restaurant=YOUR_ID
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const qrToken = urlParams.get('token') || '';
+        const qrSignature = urlParams.get('sig') || urlParams.get('signature') || '';
+
+        let currentRestaurantId = urlParams.get('id') || 'demo';
+        let currentRestaurantName = urlParams.get('name') || 'Mama Cass Kitchen';
+        let currentRestaurantLocation = urlParams.get('location') || 'Surulere, Lagos';
+
+        function setRestaurantHeader(name, location, id) {
+            currentRestaurantName = name || currentRestaurantName;
+            currentRestaurantLocation = location || currentRestaurantLocation;
+            currentRestaurantId = id || currentRestaurantId;
+
+            document.getElementById('restaurantName').innerText = currentRestaurantName;
+            document.getElementById('restaurantLocation').innerText = currentRestaurantLocation;
+            document.getElementById('restaurantData').dataset.name = currentRestaurantName;
+            document.getElementById('restaurantData').dataset.location = currentRestaurantLocation;
+            document.getElementById('restaurantData').dataset.id = currentRestaurantId;
+        }
+
+        async function resolveRestaurantFromQr() {
+            if (!qrToken || !qrSignature) {
+                setRestaurantHeader(currentRestaurantName, currentRestaurantLocation, currentRestaurantId);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/qr/resolve?token=${encodeURIComponent(qrToken)}&sig=${encodeURIComponent(qrSignature)}`);
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => ({}));
+                    throw new Error(errorBody.error || 'Unable to resolve QR campaign');
+                }
+
+                const payload = await response.json();
+                const restaurant = payload.restaurant || {};
+                const location = [restaurant.lga, restaurant.city].filter(Boolean).join(', ') || currentRestaurantLocation;
+                setRestaurantHeader(restaurant.name || currentRestaurantName, location, restaurant.restaurant_id || currentRestaurantId);
+            } catch (error) {
+                console.error('QR resolve error:', error);
+                alert('This QR code is invalid or expired. Showing fallback feedback view.');
+                setRestaurantHeader(currentRestaurantName, currentRestaurantLocation, currentRestaurantId);
+            }
+        }
+
+        let selectedPortion = null;
+        let selectedPriceMatch = null;
+        let selectedReturn = null;
+
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parent = this.parentNode;
+                parent.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedPortion = this.dataset.value;
+                checkFormCompletion();
+            });
+        });
+
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const parent = this.parentNode;
+                const parentId = parent.id;
+                parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+
+                if (parentId === 'priceMatch') {
+                    selectedPriceMatch = this.dataset.value;
+                } else if (parentId === 'returnVisit') {
+                    selectedReturn = this.dataset.value;
+                }
+
+                checkFormCompletion();
+            });
+        });
+
+        function checkFormCompletion() {
+            const submitBtn = document.getElementById('submitFeedbackBtn');
+            submitBtn.disabled = !(selectedPortion && selectedPriceMatch && selectedReturn);
+        }
+
+        document.getElementById('submitFeedbackBtn').addEventListener('click', async function() {
+            const comment = document.getElementById('customerComment').value;
+            const feedback = {
+                portion_rating: selectedPortion,
+                price_match: selectedPriceMatch === 'yes',
+                will_return: selectedReturn === 'yes',
+                comment: comment
+            };
+
+            if (qrToken && qrSignature) {
+                feedback.qr_token = qrToken;
+                feedback.qr_signature = qrSignature;
+            } else {
+                feedback.restaurant_id = currentRestaurantId;
+                feedback.restaurant_city = currentRestaurantLocation;
+            }
+
+            try {
+                const response = await fetch('/api/customer/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Client-Type': 'customer'
+                    },
+                    body: JSON.stringify(feedback)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => ({}));
+                    throw new Error(errorBody.error || 'Submission failed.');
+                }
+
+                window.location.href = 'qr-thankyou.html?restaurant=' + encodeURIComponent(currentRestaurantName);
+            } catch (error) {
+                console.error('Customer feedback error:', error);
+                alert('Error: ' + (error.message || 'Submission failed. Please try again.'));
+            }
+        });
+
+        const qrCanvas = document.getElementById('qrCanvas');
+
+        async function generateSignedQrUrl(name, location) {
+            if (!window.ledgerAuth) return null;
+            const hasSession = window.ledgerAuth.getAccessToken() || window.ledgerAuth.getRefreshToken();
+            if (!hasSession) return null;
+            if (!window.ledgerAuth.getAccessToken()) {
+                await window.ledgerAuth.refreshSession();
+            }
+            if (!window.ledgerAuth.getAccessToken()) return null;
+
+            const normalizedName = (name || '').trim();
+            const normalizedLocation = (location || '').trim();
+            if (!normalizedName || !normalizedLocation) return null;
+
+            const locationParts = normalizedLocation.split(',').map(v => v.trim()).filter(Boolean);
+            const lga = locationParts[0] || normalizedLocation;
+            const city = locationParts[1] || normalizedLocation;
+
+            let restaurant = null;
+            const listResponse = await window.ledgerAuth.authorizedFetch('/api/restaurants/me');
+            if (listResponse.ok) {
+                const listPayload = await listResponse.json();
+                const restaurants = Array.isArray(listPayload.restaurants) ? listPayload.restaurants : [];
+                restaurant = restaurants.find(r =>
+                    String(r.name || '').toLowerCase() === normalizedName.toLowerCase() &&
+                    String(r.city || '').toLowerCase() === city.toLowerCase()
+                ) || null;
+            }
+
+            if (!restaurant) {
+                const createResponse = await window.ledgerAuth.authorizedFetch('/api/restaurants', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: normalizedName, city, lga })
+                });
+                if (!createResponse.ok) {
+                    const body = await createResponse.json().catch(() => ({}));
+                    throw new Error(body.error || 'Failed to create restaurant');
+                }
+                const createPayload = await createResponse.json();
+                restaurant = createPayload.restaurant || null;
+            }
+
+            if (!restaurant || !restaurant.restaurant_id) {
+                throw new Error('Restaurant record missing from API response');
+            }
+
+            const campaignResponse = await window.ledgerAuth.authorizedFetch('/api/qr/campaigns', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    restaurant_id: restaurant.restaurant_id,
+                    campaign_name: `${normalizedName} Table Campaign`,
+                    expires_in_days: 180
+                })
+            });
+            if (!campaignResponse.ok) {
+                const body = await campaignResponse.json().catch(() => ({}));
+                throw new Error(body.error || 'Failed to create QR campaign');
+            }
+
+            const campaignPayload = await campaignResponse.json();
+            const publicUrl = campaignPayload?.qr?.public_url;
+            if (!publicUrl) throw new Error('QR campaign did not return a public URL');
+            return new URL(publicUrl, window.location.origin).toString();
+        }
+
+        async function generateQR() {
+            const name = document.getElementById('restaurantNameInput').value || 'Your Restaurant';
+            const location = document.getElementById('restaurantLocationInput').value || 'Lagos';
+            let qrUrl = '';
+            const signedFlowEligible = Boolean(
+                window.ledgerAuth &&
+                (window.ledgerAuth.getAccessToken() || window.ledgerAuth.getRefreshToken())
+            );
+
+            try {
+                qrUrl = await generateSignedQrUrl(name, location);
+            } catch (error) {
+                console.warn('Signed QR generation failed:', error);
+                if (signedFlowEligible) {
+                    alert((error && error.message) || 'Unable to generate signed QR. Verify your owner account first.');
+                    return;
+                }
+            }
+
+            if (!qrUrl) {
+                const uniqueId = 'RES-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+                qrUrl = `https://counterdiary.ng/customer.html?name=${encodeURIComponent(name)}&location=${encodeURIComponent(location)}&id=${uniqueId}`;
+            }
+
+            QRCode.toCanvas(qrCanvas, qrUrl, {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            }, function(error) {
+                if (error) console.error(error);
+                console.log('QR Code generated:', qrUrl);
+            });
+        }
+
+        document.getElementById('generateQRBtn').addEventListener('click', function() {
+            generateQR();
+        });
+
+        document.getElementById('downloadQRBtn').addEventListener('click', function() {
+            const canvas = document.getElementById('qrCanvas');
+            const link = document.createElement('a');
+            link.download = 'ledger-qr-' + Date.now() + '.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        resolveRestaurantFromQr().finally(() => {
+            setTimeout(() => {
+                generateQR();
+            }, 500);
+        });
+    </script></body>
+</html>
+
+
+

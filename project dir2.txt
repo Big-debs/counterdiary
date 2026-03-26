@@ -1,0 +1,30 @@
+counterdiary/
+│
+├── 📄 index.html                 # Homepage with live heatmap
+├── 📄 dashboard.html            # Owner 3-tap diary + SMS alerts
+├── 📄 worker.html              # Anonymous worker portal (self-destruct)
+├── 📄 customer.html           # QR code customer feedback
+├── 📄 qr-thankyou.html       # Post-feedback thank you page
+├── 📄 confession-wall.html   # LIVE anonymous confession wall
+├── 📄 public-pulse.html      # Industry intelligence reports
+│
+├── 🎨 css/
+│   └── style.css            # Master stylesheet
+│
+├── ⚡ js/
+│   ├── api-client.js      # Backend API client
+│   ├── main.js             # Core site functionality
+│   ├── heatmap.js          # Mapbox integration
+│   ├── alerts.js           # Notification system
+│   ├── dashboard.js        # Owner diary logic
+│   ├── customer.js         # QR flow handler
+│   └── sms-client.js       # SMS subscription
+│
+├── 📱 sms-webhook/         # Twilio integration
+│   ├── send-alert.js      # Bulk SMS sender
+│   ├── inbound.js         # SMS reply handler
+│   └── package.json       # Dependencies
+│
+└── 🖨️ assets/
+    ├── qr-templates/      # Printable table tent designs
+    └── icons/             # Custom SVG icons

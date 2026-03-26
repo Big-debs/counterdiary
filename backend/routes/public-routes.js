@@ -13,7 +13,6 @@ function registerPublicRoutes(app, deps) {
         customerFeedbackLimiter,
         confessionLimiter,
         newsletterLimiter,
-        smsInboundLimiter,
         validateDiaryPayload,
         validateSmsSubscriptionPayload,
         validateWorkerReportPayload,
@@ -504,48 +503,6 @@ function registerPublicRoutes(app, deps) {
         }
     });
 
-    app.post('/api/sms/inbound', smsInboundLimiter, async (req, res) => {
-        try {
-            const { From, Body } = req.body;
-
-            if (Body.toLowerCase().includes('stop') ||
-                Body.toLowerCase().includes('unsubscribe')) {
-                await pgPool.query(`
-                    UPDATE sms_subscriptions
-                    SET is_active = FALSE,
-                        unsubscribed_at = NOW(),
-                        unsubscribe_reason = 'user_sms'
-                    WHERE phone_hash = crypt($1, phone_hash)
-                `, [From]);
-
-                res.set('Content-Type', 'text/xml');
-                return res.send(`
-                    <Response>
-                        <Message>✅ You have unsubscribed from LEDGER alerts. Reply START to resubscribe.</Message>
-                    </Response>
-                `);
-            }
-
-            if (Body.toLowerCase().includes('help')) {
-                res.set('Content-Type', 'text/xml');
-                return res.send(`
-                    <Response>
-                        <Message>🆘 EMERGENCY: Contact NEMA 080-3222-8209 or Police 112. For LEDGER support: support@counterdiary.ng</Message>
-                    </Response>
-                `);
-            }
-
-            res.set('Content-Type', 'text/xml');
-            res.send(`
-                <Response>
-                    <Message>📊 LEDGER: Reply STOP to unsubscribe, HELP for emergencies. Visit counterdiary.ng for live industry data.</Message>
-                </Response>
-            `);
-        } catch (error) {
-            console.error('SMS webhook error:', error);
-            res.status(500).send('Error');
-        }
-    });
 }
 
 module.exports = registerPublicRoutes;

@@ -1,0 +1,57 @@
+# =====================================================
+# THE LEDGER - PRODUCTION DOCKER CONFIGURATION
+# Optimized for VPS or Container Hosting
+# =====================================================
+
+services:
+  # Node.js Intelligence Engine
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ledger_backend_prod
+    restart: always
+    environment:
+      # These should be set in your host environment or a secure .env file
+      - NODE_ENV=production
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-ledger}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - ADMIN_BOOTSTRAP_KEY=${ADMIN_BOOTSTRAP_KEY}
+    ports:
+      - "3000:3000"
+    networks:
+      - ledger_prod_network
+    # In production, we do NOT mount local folders. 
+    # The code is baked into the image.
+
+  # Optional: Nginx if your host doesn't provide SSL/Load Balancing
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: ledger_nginx_prod
+  #   restart: always
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - /etc/letsencrypt:/etc/letsencrypt:ro # For SSL certificates
+  #   ports:
+  #     - "80:80"
+  #     - "444:443"
+  #   networks:
+  #     - ledger_prod_network
+  #   depends_on:
+  #     - backend
+
+networks:
+  ledger_prod_network:
+    driver: bridge
+
+# Note: In production, it is highly RECOMMENDED to use a Managed Database 
+# (DigitalOcean Managed Databases, AWS RDS, Supabase, etc.) rather than 
+# running Postgres/Redis inside Docker containers for better reliability.

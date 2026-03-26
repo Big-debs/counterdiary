@@ -1418,208 +1418,30 @@ registerAccessRoutes(app, {
     ADMIN_BOOTSTRAP_KEY
 });
 
-// 1. Submit diary entry
-app.post('/api/diary', diaryWriteLimiter, validateDiaryPayload, async (req, res) => {
-    try {
-        const entry = req.body;
-        
-        // Analyze sentiment if vent text exists
-        if (entry.vent_text) {
-            const sentiment = sentimentAnalyzer.analyze(entry.vent_text);
-            entry.sentiment_score = sentiment.score;
-            entry.sentiment_label = sentiment.label;
-        }
-        
-        // Store in database
-        const result = await pgPool.query(`
-            INSERT INTO diary_entries (
-                anonymous_token, city, lga,
-                diesel_price, staff_absent, spoilage_amount,
-                leakage_amount, supplier_failure, harassment_reported,
-                price_changed, portion_reduced, took_loss,
-                vent_text, sentiment_score, sentiment_label,
-                entry_date, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
-            RETURNING entry_id
-        `, [
-            entry.anonymous_token, entry.city, entry.lga,
-            entry.diesel_price, entry.staff_absent, entry.spoilage_amount,
-            entry.leakage_amount, entry.supplier_failure, entry.harassment_reported,
-            entry.price_changed, entry.portion_reduced, entry.took_loss,
-            entry.vent_text, entry.sentiment_score, entry.sentiment_label,
-            new Date()
-        ]);
-        
-        // Trigger alert engine
-        await alertEngine.processNewEntry(entry);
-        
-        res.json({ 
-            success: true, 
-            entry_id: result.rows[0].entry_id,
-            sentiment: entry.sentiment_label
-        });
-        
-    } catch (error) {
-        console.error('Diary submission error:', error);
-        res.status(500).json({ error: 'Failed to submit diary entry' });
-    }
-});
-
-// 2. Get live dashboard data
-app.get('/api/dashboard/live', async (req, res) => {
-    try {
-        // Try cache first
-        const cached = await redis.get('dashboard:live');
-        if (cached) {
-            return res.json(JSON.parse(cached));
-        }
-        
-        // Get from materialized view
-        const result = await pgPool.query(`
-            SELECT * FROM mv_live_dashboard
-            LIMIT 1
-        `);
-        
-        const dashboard = result.rows[0];
-        
-        // Cache for 5 minutes
-        await redis.setex('dashboard:live', 300, JSON.stringify(dashboard));
-        
-        res.json(dashboard);
-        
-    } catch (error) {
-        console.error('Dashboard error:', error);
-        res.status(500).json({ error: 'Failed to fetch dashboard data' });
-    }
-});
-
-// 2b. SMS subscription (dashboard)
-app.post('/api/sms/subscribe', smsSubscribeLimiter, validateSmsSubscriptionPayload, async (req, res) => {
-    try {
-        const sub = req.body;
-        const result = await pgPool.query(`
-            INSERT INTO sms_subscriptions (
-                phone_hash, phone_last_four, city, lga,
-                alert_diesel, alert_raids, alert_supplier, alert_spoilage, alert_customer,
-                is_active, created_at, updated_at
-            )
-            VALUES (
-                crypt($1, gen_salt('bf')), $2, $3, $4,
-                $5, $6, $7, $8, $9,
-                TRUE, NOW(), NOW()
-            )
-            RETURNING subscription_id, city, lga, phone_last_four
-        `, [
-            sub.phone,
-            sub.phone_last_four,
-            sub.city,
-            sub.lga,
-            sub.alert_diesel,
-            sub.alert_raids,
-            sub.alert_supplier,
-            sub.alert_spoilage,
-            sub.alert_customer
-        ]);
-
-        res.json({
-            success: true,
-            subscription_id: result.rows[0].subscription_id,
-            phone_last_four: result.rows[0].phone_last_four,
-            city: result.rows[0].city,
-            lga: result.rows[0].lga
-        });
-    } catch (error) {
-        console.error('SMS subscribe error:', error);
-        res.status(500).json({ error: 'Failed to activate SMS alerts' });
-    }
-});
-
-// 2c. Worker report submission
-app.post('/api/worker/reports', workerReportLimiter, validateWorkerReportPayload, async (req, res) => {
-    try {
-        const report = req.body;
-        const result = await pgPool.query(`
-            INSERT INTO worker_reports (
-                city, employment_status, whisper_text, report_date, created_at
-            ) VALUES ($1, $2, $3, $4, NOW())
-            RETURNING report_id
-        `, [
-            report.city,
-            report.status,
-            report.whisper,
-            new Date()
-        ]);
-
-        res.json({ success: true, report_id: result.rows[0].report_id });
-    } catch (error) {
-        console.error('Worker report error:', error);
-        res.status(500).json({ error: 'Failed to submit worker report' });
-    }
-});
-
-// 2d. Customer feedback submission
-app.post('/api/customer/feedback', customerFeedbackLimiter, validateCustomerFeedbackPayload, async (req, res) => {
-    try {
-        const feedback = req.body;
-        if (feedback.qr_token) {
-            const payload = verifyQrToken(feedback.qr_token, feedback.qr_signature);
-            if (!payload) {
-                return res.status(400).json({ error: 'Invalid or expired QR token' });
-            }
-
-            const qrResult = await pgPool.query(`
-                SELECT
-                    qc.campaign_id,
-                    qc.is_active,
-                    qc.expires_at,
-                    r.restaurant_id,
-                    r.city,
-                    r.lga
-                FROM qr_campaigns qc
-                JOIN restaurants r ON r.restaurant_id = qc.restaurant_id
-                WHERE qc.campaign_id = $1
-                  AND qc.restaurant_id = $2
-                LIMIT 1
-            `, [payload.campaign_id, payload.restaurant_id]);
-
-            if (qrResult.rowCount === 0) {
-                return res.status(404).json({ error: 'QR campaign not found' });
-            }
-
-            const qr = qrResult.rows[0];
-            if (!qr.is_active || new Date(qr.expires_at) <= new Date()) {
-                return res.status(400).json({ error: 'QR campaign inactive or expired' });
-            }
-
-            feedback.restaurant_id = qr.restaurant_id;
-            feedback.restaurant_city = qr.city;
-            feedback.restaurant_lga = qr.lga;
-        }
-
-        const result = await pgPool.query(`
-            INSERT INTO customer_feedback (
-                restaurant_id, restaurant_city, restaurant_lga,
-                portion_rating, portion_score, price_matched, will_return, comment_text,
-                feedback_date, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-            RETURNING feedback_id
-        `, [
-            feedback.restaurant_id,
-            feedback.restaurant_city,
-            feedback.restaurant_lga || null,
-            feedback.portion_rating,
-            feedback.portion_score,
-            feedback.price_matched,
-            feedback.will_return,
-            feedback.comment_text,
-            new Date()
-        ]);
-
-        res.json({ success: true, feedback_id: result.rows[0].feedback_id });
-    } catch (error) {
-        console.error('Customer feedback error:', error);
-        res.status(500).json({ error: 'Failed to submit customer feedback' });
-    }
+registerPublicRoutes(app, {
+    pgPool,
+    redis,
+    predictiveEngine,
+    alertEngine,
+    sentimentAnalyzer,
+    ensureConfessionsTable,
+    ensureNewsletterTable,
+    diaryWriteLimiter,
+    smsSubscribeLimiter,
+    workerReportLimiter,
+    customerFeedbackLimiter,
+    confessionLimiter,
+    newsletterLimiter,
+    smsInboundLimiter,
+    validateDiaryPayload,
+    validateSmsSubscriptionPayload,
+    validateWorkerReportPayload,
+    validateCustomerFeedbackPayload,
+    validateConfessionPayload,
+    validateNewsletterPayload,
+    verifyQrToken,
+    getCityCoordinates,
+    getSeverityFromScore
 });
 
 // 2e. List confessions
